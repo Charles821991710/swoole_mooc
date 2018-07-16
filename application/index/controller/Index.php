@@ -15,6 +15,6 @@ class Index
 
     public function time()
     {
-        echo time();
+        return time();
     }
 }
