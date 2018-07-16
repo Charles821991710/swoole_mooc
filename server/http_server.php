@@ -11,25 +11,68 @@ $http->set(
     [
         'enable_static_handler' => true,
         'document_root' => "/home/work/hdtocs/swoole_mooc/thinkphp/swoole/thinkphp/public/static",
+        'worker_num' => 5,
 
     ]
 );
-$http->on('request', function($request, $response) {
 
-    //print_r($request->get);
-//    $content = [
-//        'date:' => date("Ymd H:i:s"),
-//        'get:' => $request->get,
-//        'post:' => $request->post,
-//        'header:' => $request->header,
-//    ];
+$http->on('WorkerStart', function(swoole_server $server,  $worker_id) {
+    // 定义应用目录
+    define('APP_PATH', __DIR__ . '/../application/');
+    // 加载框架里面的文件
+    require __DIR__ . '/../thinkphp/base.php';
+    //require __DIR__ . '/../thinkphp/start.php';
+});
 
-//    swoole_async_writefile(__DIR__."/access.log", json_encode($content).PHP_EOL, function($filename){
-//        // todo
-//    }, FILE_APPEND);
 
-    $response->cookie("singwa", "xsssss", time() + 1800);
-    $response->end("sss". json_encode($request->get));
+
+
+$http->on('request', function($request, $response) use ($http){
+
+    $_SERVER  =  [];
+    if(isset($request->server)) {
+        foreach($request->server as $k => $v) {
+            $_SERVER[strtoupper($k)] = $v;
+        }
+    }
+
+
+    if(isset($request->header)) {
+        foreach($request->header as $k => $v) {
+            $_SERVER[strtoupper($k)] = $v;
+        }
+    }
+
+
+    $_GET = [];
+    if(isset($request->get)) {
+        foreach($request->get as $k => $v) {
+            $_GET[$k] = $v;
+        }
+    }
+
+    $_POST = [];
+    if(isset($request->post)) {
+        foreach($request->post as $k => $v) {
+            $_POST[$k] = $v;
+        }
+    }
+
+    ob_start();
+    // 执行应用并响应
+    try {
+        think\Container::get('app', [APP_PATH])
+            ->run()
+            ->send();
+    }catch (\Exception $e) {
+        // todo
+    }
+
+    $res = ob_get_contents();
+    ob_end_clean();
+
+    //$response->cookie("singwa", "xsssss", time() + 1800);
+    $response->end($res);
 });
 
 $http->start();
