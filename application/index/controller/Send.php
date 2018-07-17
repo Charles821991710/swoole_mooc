@@ -36,18 +36,12 @@ class Send
 
         $redis = new \Swoole\Coroutine\Redis();
 
-        $res=$redis->connect(config('redis.host'), config('redis.port'));
+        $redis->connect(config('redis.host'), config('redis.port'));
 
-
-        var_dump($res);
-
-
-        return;
 
         $res = $redis->set(Redis::smsKey($phoneNum), $code, config('redis.out_time'));
 
-
-
+        
 
         if ($res) {
 
