@@ -12,5 +12,4 @@ return [
     'out_time'=>120,
     'timeOut'=>5,//超时时间
     'live_game_key'=>'live_game_key'
-
 ];
