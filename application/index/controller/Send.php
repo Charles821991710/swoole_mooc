@@ -24,11 +24,11 @@ class Send
         //$phoneNum = request()->get('phone_num', 0, 'intval');
         //$phoneNum=intval($_GET['phone_num']);
 
-        $phoneNum=13232809689;
+        $phoneNum = 13232809689;
 
-        if(empty($phoneNum)){
+        if (empty($phoneNum)) {
 
-            return Util::show(config('code.error'),'error');
+            return Util::show(config('code.error'), 'error');
         }
         // 生成一个随机数
         $code = rand(1000, 9999);
@@ -36,12 +36,20 @@ class Send
 
         $redis = new \Swoole\Coroutine\Redis();
 
-        $redis->connect(config('redis.host'),config('redis.port'));
+        $redis->connect(config('redis.host'), config('redis.port'));
 
-        $redis->set(Redis::smsKey($phoneNum),$code,config('redis.out_time'));
+        $res = $redis->set(Redis::smsKey($phoneNum), $code, config('redis.out_time'));
 
+        if ($res) {
 
-        return 'success';
+            return Util::show(config('code.success'), 'success');
+
+        } else {
+
+            return Util::show(config('code.error'), '验证码发送失败');
+
+        }
+
 
     }
 
