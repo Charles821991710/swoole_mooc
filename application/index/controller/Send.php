@@ -41,6 +41,8 @@ class Send
         $redis->set(Redis::smsKey($phoneNum),$code,config('redis.out_time'));
 
 
+        return 'success';
+
     }
 
 }
